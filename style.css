@@ -1,0 +1,89 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corpo da página */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f6f6f6;
+  color: #333;
+  padding: 20px;
+}
+
+/* Container central */
+.container {
+  max-width: 600px;
+  margin: auto;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 30px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Título principal */
+.container h1 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+/* Imagem da capa do eBook */
+.capa {
+  width: 100%;
+  max-width: 280px;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+/* Descrição do eBook */
+.descricao {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  color: #444;
+}
+
+/* Valor */
+h2 {
+  color: #27ae60;
+  margin-bottom: 20px;
+}
+
+/* Seção do Pix */
+.pix p {
+  font-size: 1.1rem;
+  margin: 10px 0;
+}
+
+.pix code {
+  font-size: 1.2rem;
+  color: #e74c3c;
+  background-color: #fceae9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.pix img {
+  margin-top: 15px;
+  width: 200px;
+  height: 200px;
+}
+
+/* Instrução de envio do comprovante */
+.comprovante {
+  font-size: 0.95rem;
+  margin-top: 30px;
+  color: #555;
+}
+
+/* Informações de contato */
+.container p:last-child {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
