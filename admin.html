@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Elegance Perfumes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow-lg">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Painel de Controle do Estoque</h1>
+
+        <div class="bg-gray-50 p-4 rounded mb-8 border">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Adicionar/Editar Produto</h2>
+            <form id="product-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="hidden" id="prod-id">
+                
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-600">Nome</label>
+                    <input type="text" id="prod-name" value="nome do produto" class="border p-2 rounded" required>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-600">Marca/Setor</label>
+                    <select id="prod-brand" class="border p-2 rounded">
+                        <option value="boticario">Boticário</option>
+                        <option value="brand">Brand (Coleção)</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-600">Preço (R$)</label>
+                    <input type="number" id="prod-price" step="0.01" class="border p-2 rounded" required>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-gray-600">Estoque (Qtd)</label>
+                    <input type="number" id="prod-stock" class="border p-2 rounded" required>
+                </div>
+
+                <div class="md:col-span-4 flex justify-end gap-2 mt-2">
+                    <button type="button" onclick="resetForm()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Limpar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Salvar Produto</button>
+                </div>
+            </form>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">Produtos Cadastrados</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-800 text-white">
+                        <th class="p-3">ID</th>
+                        <th class="p-3">Nome</th>
+                        <th class="p-3">Marca</th>
+                        <th class="p-3">Preço</th>
+                        <th class="p-3">Estoque</th>
+                        <th class="p-3">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="product-list">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let products = JSON.parse(localStorage.getItem('perfume_products')) || [];
+
+        function renderTable() {
+            const tbody = document.getElementById('product-list');
+            tbody.innerHTML = '';
+            
+            products.forEach(p => {
+                const stockLabel = p.stock > 0 ? `<span class="text-green-600 font-bold">${p.stock}</span>` : `<span class="text-red-500 font-bold">Esgotado</span>`;
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 text-gray-500">#${p.id}</td>
+                        <td class="p-3 font-semibold">${p.name}</td>
+                        <td class="p-3 uppercase text-sm">${p.brand}</td>
+                        <td class="p-3">R$ ${parseFloat(p.price).toFixed(2)}</td>
+                        <td class="p-3">${stockLabel}</td>
+                        <td class="p-3">
+                            <button onclick="editProduct(${p.id})" class="text-blue-500 hover:text-blue-700 mr-3">Editar</button>
+                            <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:text-red-700">Remover</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const idInput = document.getElementById('prod-id').value;
+            const name = document.getElementById('prod-name').value;
+            const brand = document.getElementById('prod-brand').value;
+            const price = parseFloat(document.getElementById('prod-price').value);
+            const stock = parseInt(document.getElementById('prod-stock').value);
+
+            if(idInput) {
+                // Editar
+                const index = products.findIndex(p => p.id == idInput);
+                products[index] = { id: parseInt(idInput), name, brand, price, stock };
+            } else {
+                // Novo
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({ id: newId, name, brand, price, stock });
+            }
+
+            localStorage.setItem('perfume_products', JSON.stringify(products));
+            resetForm();
+            renderTable();
+            alert('Produto salvo com sucesso!');
+        });
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            document.getElementById('prod-id').value = product.id;
+            document.getElementById('prod-name').value = product.name;
+            document.getElementById('prod-brand').value = product.brand;
+            document.getElementById('prod-price').value = product.price;
+            document.getElementById('prod-stock').value = product.stock;
+        }
+
+        function deleteProduct(id) {
+            if(confirm('Tem certeza que deseja remover este produto?')) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('perfume_products', JSON.stringify(products));
+                renderTable();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('prod-id').value = '';
+            document.getElementById('product-form').reset();
+            document.getElementById('prod-name').value = 'nome do produto'; // Mantém o padrão que você pediu
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>
