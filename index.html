@@ -1,33 +1,164 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Venda de eBook</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegance Perfumes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { gold: '#d4af37', dark: '#121212' } }
+            }
+        }
+    </script>
 </head>
-<body>
-  <div class="container">
-    <h1>📘 Como Ganhar Dinheiro com o Celular</h1>
-    <img src="capa.jpg" alt="Capa do eBook" class="capa" />
-    <p class="descricao">
-      Aprenda métodos práticos e testados para começar a ganhar dinheiro com seu celular ainda hoje!
-    </p>
-    <h2>💰 Valor: R$ 19,90</h2>
+<body class="bg-gray-50 text-gray-800 font-sans">
 
-    <div class="pix">
-      <p><strong>Faça o Pix para:</strong></p>
-      <p><code>020.267.282-40</code></p>
-      <img src="https://api.qrserver.com/v1/create-qr-code/?data=020.267.282-40&size=200x200" alt="QR Code Pix" />
+    <header class="bg-dark text-white p-4 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl text-gold font-serif font-bold tracking-widest">ELEGANCE</h1>
+            <button onclick="toggleCart()" class="relative p-2">
+                <i class="fas fa-shopping-cart text-xl"></i>
+                <span id="cart-count" class="absolute top-0 right-0 bg-gold text-dark text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            </button>
+        </div>
+    </header>
+
+    <section class="bg-dark text-white py-20 text-center border-b-4 border-gold">
+        <h2 class="text-4xl md:text-5xl font-serif mb-4">Descubra a sua essência</h2>
+        <p class="text-gray-400">As melhores fragrâncias ao seu alcance.</p>
+    </section>
+
+    <main class="container mx-auto p-6 my-8">
+        <h3 class="text-3xl font-serif border-b-2 border-gold pb-2 mb-6">Boticário</h3>
+        <div id="grid-boticario" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
+            </div>
+
+        <h3 class="text-3xl font-serif border-b-2 border-gold pb-2 mb-6">Brand (Linha Coleção)</h3>
+        <div id="grid-brand" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            </div>
+    </main>
+
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div class="p-4 bg-dark text-white flex justify-between items-center">
+            <h2 class="text-xl font-serif text-gold">Seu Carrinho</h2>
+            <button onclick="toggleCart()" class="text-white hover:text-red-500"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="cart-items" class="p-4 flex-1 overflow-y-auto flex flex-col gap-4">
+            </div>
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex justify-between font-bold text-lg mb-4">
+                <span>Total:</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-gold text-dark font-bold py-3 rounded hover:bg-yellow-500 transition">
+                Confirmar no WhatsApp
+            </button>
+        </div>
     </div>
 
-    <p class="comprovante">
-      Após o pagamento, envie o comprovante para <strong>seu WhatsApp ou e-mail</strong> para receber o eBook.
-    </p>
+    <script>
+        // Inicializa produtos se não houver no LocalStorage
+        const defaultProducts = [
+            { id: 1, name: "nome do produto", brand: "boticario", price: 150.00, stock: 5 },
+            { id: 2, name: "nome do produto", brand: "brand", price: 299.90, stock: 0 }
+        ];
 
-    <p>📩 WhatsApp: (92) 99427-4276<br />
-       📧 E-mail:
-gabrielzorzetti57@gmail.com</p>
-  </div>
+        let products = JSON.parse(localStorage.getItem('perfume_products')) || defaultProducts;
+        if (!localStorage.getItem('perfume_products')) localStorage.setItem('perfume_products', JSON.stringify(products));
+
+        let cart = [];
+
+        function renderProducts() {
+            const gridBot = document.getElementById('grid-boticario');
+            const gridBrand = document.getElementById('grid-brand');
+            gridBot.innerHTML = ''; gridBrand.innerHTML = '';
+
+            products.forEach(p => {
+                const isEsgotado = p.stock <= 0;
+                const card = `
+                    <div class="bg-white rounded shadow-lg overflow-hidden flex flex-col transition hover:shadow-xl">
+                        <div class="bg-gray-200 h-64 flex items-center justify-center text-gray-500 italic">
+                            sem imagem
+                        </div>
+                        <div class="p-4 flex flex-col flex-1">
+                            <h4 class="text-lg font-bold mb-1">${p.name}</h4>
+                            <p class="text-xl text-gold font-semibold mb-3">R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}</p>
+                            <div class="mt-auto">
+                                ${isEsgotado 
+                                    ? '<span class="block text-center text-red-500 font-bold py-2">Esgotado</span>' 
+                                    : `<button onclick="addToCart(${p.id})" class="w-full bg-dark text-white py-2 rounded hover:bg-gray-800 transition">Adicionar</button>`}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                if(p.brand === 'boticario') gridBot.innerHTML += card;
+                else gridBrand.innerHTML += card;
+            });
+        }
+
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            if(product && product.stock > 0) {
+                const item = cart.find(i => i.id === id);
+                if(item) {
+                    if(item.qtd < product.stock) item.qtd++;
+                    else alert('Estoque máximo atingido para este item.');
+                } else {
+                    cart.push({...product, qtd: 1});
+                }
+                updateCart();
+            }
+        }
+
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            let total = 0;
+            let count = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price * item.qtd;
+                count += item.qtd;
+                container.innerHTML += `
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <p class="font-bold text-sm">${item.name}</p>
+                            <p class="text-xs text-gray-500">Qtd: ${item.qtd} x R$ ${item.price.toFixed(2)}</p>
+                        </div>
+                        <button onclick="cart.splice(${index}, 1); updateCart()" class="text-red-500 text-sm"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        function checkout() {
+            if(cart.length === 0) return alert('Seu carrinho está vazio!');
+            
+            let text = "Olá! Gostaria de fazer o seguinte pedido na *Elegance*:%0A%0A";
+            let total = 0;
+            
+            cart.forEach(item => {
+                text += `• ${item.qtd}x ${item.name} - R$ ${(item.price * item.qtd).toFixed(2)}%0A`;
+                total += item.price * item.qtd;
+            });
+            
+            text += `%0A*Total: R$ ${total.toFixed(2)}*`;
+            
+            const numero = "5592994246242";
+            window.open(`https://wa.me/${numero}?text=${text}`, '_blank');
+        }
+
+        renderProducts();
+    </script>
 </body>
 </html>
