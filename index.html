@@ -36,8 +36,8 @@
         .product-image {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Garante que a imagem inteira apareça sem cortar */
-            padding: 1rem; /* Espaçamento interno para não grudar nas bordas */
+            object-fit: contain; 
+            padding: 1rem; 
         }
     </style>
 </head>
@@ -63,7 +63,7 @@
         </div>
     </header>
 
-    <section class="relative bg-midnight text-white py-24 flex items-center justify-center overflow-hidden">
+    <section id="hero-section" class="relative bg-midnight text-white py-24 flex items-center justify-center overflow-hidden transition-all duration-500">
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
         <div class="relative z-10 text-center px-4 max-w-3xl">
             <span class="text-gold uppercase tracking-[0.3em] text-sm font-semibold mb-3 block">A Arte da Perfumaria</span>
@@ -74,15 +74,17 @@
 
     <main id="catalogo" class="container mx-auto px-4 md:px-6 py-16">
         
+        <div id="search-count" class="hidden text-center text-sm text-gray-500 mb-8 font-medium italic"></div>
+
         <div id="no-results" class="hidden text-center py-20 text-gray-500 flex flex-col items-center gap-4">
-            <i class="fas fa-search text-5xl opacity-30"></i>
+            <i class="fas fa-search text-5xl opacity-30">O Boticário</i>
             <p class="text-xl font-light">Nenhum perfume corresponde à sua busca.</p>
             <button onclick="window.clearSearch()" class="text-gold hover:underline">Limpar busca</button>
         </div>
 
         <div id="section-boticario" class="mb-20 product-section">
             <div class="text-center mb-10">
-                <h3 class="text-4xl font-serif text-midnight mb-2">O Boticário</h3>
+                <h3 class="text-4xl font-serif text-midnight mb-2"></h3>
                 <div class="w-16 h-px bg-gold mx-auto"></div>
             </div>
             <div id="grid-boticario" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -130,11 +132,9 @@
     </div>
 
     <script type="module">
-        // 1. Importando o Firebase atualizado (versão 12.11.0)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-        // 2. A sua configuração oficial
         const firebaseConfig = {
             apiKey: "AIzaSyBBzLjq-FsBI7nK97MvF_-FMNEDDakbs3o",
             authDomain: "elegance-perfum.firebaseapp.com",
@@ -144,33 +144,23 @@
             appId: "1:12599337514:web:b83c321202fc48ba73d953"
         };
 
-        // 3. Inicializando o Firebase e o Banco de Dados (Firestore)
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Nossas listas (agora o array de produtos começa vazio até o Firebase mandar os dados)
         let products = [];
         let cart = [];
 
-        // 4. OLHEIRO DO FIREBASE: Fica monitorando a coleção "produtos"
         onSnapshot(collection(db, "produtos"), (snapshot) => {
             products = [];
             snapshot.forEach((doc) => {
-                // Pega o ID único que o Firebase gera e junta com os dados (nome, preço, etc)
                 products.push({ id: doc.id, ...doc.data() }); 
             });
             
-            // Assim que os produtos chegarem (ou se algo for editado), re-renderiza a tela
             window.renderProducts(products);
             
-            // Garante que se um produto for deletado no banco, ele saia do carrinho do cliente
             cart = cart.filter(cartItem => products.some(p => p.id === cartItem.id));
             window.updateCart(); 
         });
-
-        // ==============================================================
-        // FUNÇÕES DA LOJA (Colocamos no 'window' porque estamos usando type="module")
-        // ==============================================================
 
         window.renderProducts = function(productsToRender = products) {
             const gridBot = document.getElementById('grid-boticario');
@@ -187,7 +177,6 @@
             productsToRender.forEach(p => {
                 const isEsgotado = p.stock <= 0;
                 
-                // Define a imagem: Usa a URL do Firebase OU o placeholder
                 const imageHtml = p.image && p.image !== "" 
                     ? `<img src="${p.image}" alt="${p.name}" class="product-image transform group-hover:scale-105 transition-transform duration-700">`
                     : `<span class="text-gray-400 font-serif tracking-widest text-xs uppercase transform group-hover:scale-110 transition-transform duration-700 p-4 text-center">sem imagem</span>`;
@@ -226,19 +215,39 @@
             noResults.classList.toggle('hidden', productsToRender.length > 0);
         }
 
+        // --- ATUALIZADO: FUNÇÃO DE BUSCA E CONTADOR ---
         window.searchProducts = function() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const heroSection = document.getElementById('hero-section');
+            const searchCount = document.getElementById('search-count');
             
+            // Se o campo de busca ficar vazio, volta o site ao normal
             if (searchTerm === "") {
+                heroSection.classList.remove('hidden');
+                searchCount.classList.add('hidden');
                 window.renderProducts(products);
                 return;
             }
 
+            // Se tem texto na busca, filtra os produtos
             const filteredProducts = products.filter(p => 
                 p.name.toLowerCase().includes(searchTerm) || 
                 p.brand.toLowerCase().includes(searchTerm)
             );
             
+            // Esconde o Banner Gigante e mostra a frase de contagem
+            heroSection.classList.add('hidden');
+            searchCount.classList.remove('hidden');
+            
+            // Atualiza a frase com a quantidade exata
+            if (filteredProducts.length === 0) {
+                searchCount.innerHTML = `Nenhum perfume encontrado para "<b>${searchTerm}</b>"`;
+            } else if (filteredProducts.length === 1) {
+                searchCount.innerHTML = `1 perfume encontrado`;
+            } else {
+                searchCount.innerHTML = `${filteredProducts.length} perfumes encontrados`;
+            }
+
             window.renderProducts(filteredProducts);
         }
 
@@ -335,18 +344,19 @@
             document.getElementById('cart-count').innerText = count;
         }
 
+        // --- ATUALIZADO: MENSAGEM DO WHATSAPP SEM EMOJIS ---
         window.checkout = function() {
             if(cart.length === 0) return alert('Sua sacola está vazia!');
             
-            let text = "✨ Olá! Gostaria de fazer o seguinte pedido na *Elegance Perfumes*:%0A%0A";
+            let text = "Ola! Gostaria de fazer o seguinte pedido na Elegance Perfumes:%0A%0A";
             let total = 0;
             
             cart.forEach(item => {
-                text += `🛍️ *${item.qtd}x* ${item.name} (${item.brand === 'boticario' ? 'Boticário' : 'Brand'}) - R$ ${(item.price * item.qtd).toFixed(2).replace('.', ',')}%0A`;
+                text += `- ${item.qtd}x ${item.name} (${item.brand === 'boticario' ? 'Boticario' : 'Brand'}) | R$ ${(item.price * item.qtd).toFixed(2).replace('.', ',')}%0A`;
                 total += item.price * item.qtd;
             });
             
-            text += `%0A💎 *Total do Pedido: R$ ${total.toFixed(2).replace('.', ',')}*%0A%0AAguardo o retorno para combinar a entrega/pagamento!`;
+            text += `%0A*Total do Pedido: R$ ${total.toFixed(2).replace('.', ',')}*%0A%0AAguardo o retorno para confirmar e combinar a entrega/pagamento.`;
             
             const numero = "5592994246242"; 
             window.open(`https://wa.me/${numero}?text=${text}`, '_blank');
