@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Turbinado | Elegance Perfumes</title>
+    <title>Admin Turbinado | Perfumes da Gi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="flex justify-between items-center mb-10 pb-4 border-b-2 border-gold">
-            <h1 class="text-3xl md:text-4xl font-serif font-bold text-midnight tracking-wider">Gestão de Estoque Elegance</h1>
+            <h1 class="text-3xl md:text-4xl font-serif font-bold text-midnight tracking-wider">Gestão de Estoque da Gi</h1>
             <a href="index.html" target="_blank" class="text-gold hover:text-midnight transition flex items-center gap-2">
                 Ver Loja <i class="fas fa-external-link-alt text-sm"></i>
             </a>
@@ -74,7 +74,7 @@
                         <div class="flex flex-col">
                             <label class="text-sm font-bold text-gray-600 mb-1">Marca/Setor</label>
                             <select id="prod-brand" class="border border-gray-200 p-3 rounded focus:ring-1 focus:ring-gold focus:border-gold outline-none bg-white">
-                                <option value="Arábes">Arábes</option>
+                                <option value="arabes">Árabes</option>
                                 <option value="brand">Brand (Coleção)</option>
                             </select>
                         </div>
@@ -142,7 +142,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-        // Configuração do Firebase da sua loja
         const firebaseConfig = {
             apiKey: "AIzaSyBBzLjq-FsBI7nK97MvF_-FMNEDDakbs3o",
             authDomain: "elegance-perfum.firebaseapp.com",
@@ -159,7 +158,6 @@
         let selectedFile = null;
         let currentImageUrl = "";
 
-        // Escutando o banco de dados em tempo real
         onSnapshot(collection(db, "produtos"), (snapshot) => {
             products = [];
             snapshot.forEach((doc) => {
@@ -168,7 +166,6 @@
             window.renderTable();
         });
 
-        // Função para previsualizar a foto escolhida
         window.previewFile = function() {
             const fileInput = document.getElementById('prod-image');
             selectedFile = fileInput.files[0];
@@ -185,7 +182,6 @@
             }
         }
 
-        // Função para remover a foto do formulário
         window.removeImage = function() {
             selectedFile = null;
             currentImageUrl = "";
@@ -196,7 +192,6 @@
             document.getElementById('btn-remove-img').classList.add('hidden');
         }
 
-        // Função para desenhar a tabela de produtos
         window.renderTable = function() {
             const tbody = document.getElementById('product-list');
             const noMsg = document.getElementById('no-products-msg');
@@ -227,11 +222,14 @@
                     ? `<img src="${finalImgSrc}" alt="${p.name}" class="w-12 h-12 object-contain p-0.5 border rounded-sm">`
                     : `<div class="w-12 h-12 bg-gray-100 border rounded-sm flex items-center justify-center text-[7px] text-gray-400 font-serif uppercase p-0.5 text-center">sem<br>foto</div>`;
 
+                const brandLower = (p.brand || '').toLowerCase();
+                const brandDisplay = (brandLower === 'arabes' || brandLower === 'arábes' || brandLower === 'boticario') ? 'Árabes' : 'Brand';
+
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50 transition">
                         <td class="p-4">${imgTag}</td>
                         <td class="p-4 font-semibold text-midnight">${p.name}</td>
-                        <td class="p-4 uppercase text-xs tracking-wider">${p.brand === 'Arábes' ? 'Arábes' : 'Brand'}</td>
+                        <td class="p-4 uppercase text-xs tracking-wider">${brandDisplay}</td>
                         <td class="p-4 font-semibold text-gold">R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}</td>
                         <td class="p-4">${stockLabel}</td>
                         <td class="p-4">
@@ -245,7 +243,6 @@
             });
         }
 
-        // FUNÇÃO PRINCIPAL: SALVAR PRODUTO E UPLOAD CLOUDINARY
         window.saveProduct = async function(e) {
             e.preventDefault();
             
@@ -267,12 +264,9 @@
             let finalImageUrl = currentImageUrl; 
 
             try {
-                // UPLOAD PARA O CLOUDINARY
                 if (selectedFile) {
                     const formData = new FormData();
                     formData.append("file", selectedFile);
-                    
-                    // Dados da sua conta Cloudinary
                     formData.append("upload_preset", "ml_default"); 
                     const cloudName = "dzophwnk2"; 
                     
@@ -294,10 +288,9 @@
 
                 btnSave.innerText = "Salvando no Banco...";
 
-                // Salvando no Firebase Firestore
                 const productData = {
                     name: name,
-                    brand: brand,
+                    brand: brand, 
                     price: price,
                     stock: stock,
                     image: finalImageUrl, 
@@ -312,7 +305,7 @@
                 }
 
                 window.resetForm();
-                alert('Vitória! 🎉 A foto foi salva no Cloudinary e o perfume no Firebase!');
+                alert('Vitória! 🎉 Produto salvo com sucesso!');
                 
             } catch (error) {
                 console.error(error);
@@ -323,7 +316,6 @@
             }
         }
 
-        // Função para preencher o formulário para edição
         window.editProduct = function(id) {
             const product = products.find(p => p.id === id);
             
@@ -332,7 +324,13 @@
 
             document.getElementById('prod-id').value = product.id;
             document.getElementById('prod-name').value = product.name;
-            document.getElementById('prod-brand').value = product.brand;
+            
+            let brandToSelect = product.brand;
+            if(brandToSelect === 'boticario' || brandToSelect === 'Arábes' || brandToSelect === 'arábes') {
+                brandToSelect = 'arabes';
+            }
+            document.getElementById('prod-brand').value = brandToSelect;
+            
             document.getElementById('prod-price').value = product.price;
             document.getElementById('prod-stock').value = product.stock;
             
@@ -349,7 +347,6 @@
             }
         }
 
-        // Função para deletar o produto
         window.deleteProduct = async function(id) {
             if(confirm('Tem certeza absoluta que deseja remover este perfume?')) {
                 try {
@@ -361,7 +358,6 @@
             }
         }
 
-        // Função para limpar o formulário
         window.resetForm = function() {
             document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-gold"></i> Novo Produto`;
             document.getElementById('prod-id').value = '';
@@ -370,5 +366,5 @@
         }
     </script>
 </body>
-    </html>
-    
+          </html>
+                        
