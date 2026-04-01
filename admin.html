@@ -266,7 +266,7 @@
                     formData.append("image", selectedFile); // Voltamos a mandar o arquivo original (mais leve que base64)
 
                     // MÁGICA AQUI: A chave agora vai pendurada no link!
-                    const apiKey = "ef72087a57408c4060ed8760735884ea";
+                    const apiKey = "ef72087a57408c4060ec8760735884ea";
                     const urlDoImgbb = `https://api.imgbb.com/1/upload?key=${apiKey}`;
 
                     const response = await fetch(urlDoImgbb, {
