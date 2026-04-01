@@ -63,7 +63,7 @@
                                 <span><i class="fas fa-upload mr-1"></i> Escolher Foto</span>
                                 <input type="file" id="prod-image" accept="image/png, image/jpeg, image/webp" class="hidden" onchange="window.previewFile()">
                             </label>
-                            <p class="text-[10px] text-gray-400 text-center">A imagem será processada de forma rápida e gratuita.</p>
+                            <p class="text-[10px] text-gray-400 text-center">Processamento via Cloudinary (Anti-Bloqueio).</p>
                         </div>
 
                         <div class="flex flex-col">
@@ -127,10 +127,10 @@
                                 </tr>
                             </thead>
                             <tbody id="product-list" class="text-sm">
-                            </tbody>
+                                </tbody>
                         </table>
                         <div id="no-products-msg" class="hidden text-center py-16 text-gray-500 italic">
-                            Nenhum produto cadastrado ou correspondente ao filtro.
+                            Nenhum produto cadastrado.
                         </div>
                     </div>
                 </div>
@@ -142,6 +142,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+        // Configuração do Firebase da sua loja
         const firebaseConfig = {
             apiKey: "AIzaSyBBzLjq-FsBI7nK97MvF_-FMNEDDakbs3o",
             authDomain: "elegance-perfum.firebaseapp.com",
@@ -158,19 +159,16 @@
         let selectedFile = null;
         let currentImageUrl = "";
 
+        // Escutando o banco de dados em tempo real
         onSnapshot(collection(db, "produtos"), (snapshot) => {
             products = [];
             snapshot.forEach((doc) => {
                 products.push({ id: doc.id, ...doc.data() });
             });
             window.renderTable();
-        }, (error) => {
-            console.error("Erro ao escutar o banco de dados:", error);
-            if(error.code === 'permission-denied'){
-                alert("ERRO: Permissão negada! Verifique as regras do Firestore.");
-            }
         });
 
+        // Função para previsualizar a foto escolhida
         window.previewFile = function() {
             const fileInput = document.getElementById('prod-image');
             selectedFile = fileInput.files[0];
@@ -187,6 +185,7 @@
             }
         }
 
+        // Função para remover a foto do formulário
         window.removeImage = function() {
             selectedFile = null;
             currentImageUrl = "";
@@ -197,6 +196,7 @@
             document.getElementById('btn-remove-img').classList.add('hidden');
         }
 
+        // Função para desenhar a tabela de produtos
         window.renderTable = function() {
             const tbody = document.getElementById('product-list');
             const noMsg = document.getElementById('no-products-msg');
@@ -221,7 +221,6 @@
                     ? `<span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full">${p.stock}</span>` 
                     : `<span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">Esgotado</span>`;
                 
-                // Agora ele verifica tanto 'image' quanto 'img'
                 const finalImgSrc = p.image || p.img || "";
                 
                 const imgTag = finalImgSrc !== ""
@@ -237,8 +236,8 @@
                         <td class="p-4">${stockLabel}</td>
                         <td class="p-4">
                             <div class="flex gap-2">
-                                <button onclick="window.editProduct('${p.id}')" class="text-blue-500 hover:text-blue-700 p-1.5"><i class="fas fa-edit"></i></button>
-                                <button onclick="window.deleteProduct('${p.id}')" class="text-red-400 hover:text-red-600 p-1.5"><i class="fas fa-trash"></i></button>
+                                <button onclick="window.editProduct('${p.id}')" class="text-blue-500 hover:text-blue-700 p-1.5" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button onclick="window.deleteProduct('${p.id}')" class="text-red-400 hover:text-red-600 p-1.5" title="Excluir"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -246,11 +245,10 @@
             });
         }
 
+        // FUNÇÃO PRINCIPAL: SALVAR PRODUTO E UPLOAD CLOUDINARY
         window.saveProduct = async function(e) {
             e.preventDefault();
             
-            alert("Aviso 1: Iniciando o salvamento!"); 
-
             const btnSave = document.getElementById('btn-save');
             const idInput = document.getElementById('prod-id').value;
             const name = document.getElementById('prod-name').value;
@@ -263,45 +261,40 @@
                 return;
             }
 
-            btnSave.innerText = "Processando...";
+            btnSave.innerText = "Enviando Foto pro Cloudinary...";
             btnSave.disabled = true;
 
             let finalImageUrl = currentImageUrl; 
 
             try {
+                // UPLOAD PARA O CLOUDINARY
                 if (selectedFile) {
-                    alert("Aviso 2: Foto detectada! Enviando para o ImgBB..."); 
-                    
-                    const reader = new FileReader();
-                    const base64Promise = new Promise((resolve) => {
-                        reader.onload = () => resolve(reader.result.split(',')[1]);
-                        reader.readAsDataURL(selectedFile);
-                    });
-                    const base64Image = await base64Promise;
-
                     const formData = new FormData();
-                    formData.append("image", base64Image);
+                    formData.append("file", selectedFile);
+                    
+                    // Dados da sua conta Cloudinary
+                    formData.append("upload_preset", "ml_default"); 
+                    const cloudName = "dzophwnk2"; 
+                    
+                    const urlCloudinary = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
-                    // 👇 COLOQUE A SUA CHAVE NOVA NA LINHA DE BAIXO 👇
-                    const apiKey = "9b6f4ad8dcfca1f2933eaf00add23daf"; 
-                    const urlDoImgbb = `https://api.imgbb.com/1/upload?key=${apiKey}`;
-
-                    const response = await fetch(urlDoImgbb, {
+                    const response = await fetch(urlCloudinary, {
                         method: "POST",
                         body: formData
                     });
                     
                     const data = await response.json();
                     
-                    if (data.success) {
-                        finalImageUrl = data.data.url;
-                        alert("Aviso 3: Sucesso no ImgBB! O link da foto é: " + finalImageUrl); 
+                    if (data.secure_url) {
+                        finalImageUrl = data.secure_url;
                     } else {
-                        throw new Error(data.error?.message || "O ImgBB recusou a imagem.");
+                        throw new Error(data.error?.message || "O Cloudinary recusou a imagem.");
                     }
                 }
 
-                // Salvando com os DOIS nomes para garantir
+                btnSave.innerText = "Salvando no Banco...";
+
+                // Salvando no Firebase Firestore
                 const productData = {
                     name: name,
                     brand: brand,
@@ -319,16 +312,18 @@
                 }
 
                 window.resetForm();
-                alert('Aviso 4: Produto e Imagem salvos com sucesso no Banco de Dados!');
+                alert('Vitória! 🎉 A foto foi salva no Cloudinary e o perfume no Firebase!');
                 
             } catch (error) {
-                alert("ERRO AO SALVAR: " + error.message);
+                console.error(error);
+                alert("ERRO: " + error.message);
             } finally {
                 btnSave.innerText = "Salvar Produto";
                 btnSave.disabled = false;
             }
         }
 
+        // Função para preencher o formulário para edição
         window.editProduct = function(id) {
             const product = products.find(p => p.id === id);
             
@@ -354,18 +349,19 @@
             }
         }
 
+        // Função para deletar o produto
         window.deleteProduct = async function(id) {
-            if(confirm('Tem certeza absoluta que deseja remover este perfume das nuvens? Esta ação não pode ser desfeita.')) {
+            if(confirm('Tem certeza absoluta que deseja remover este perfume?')) {
                 try {
                     await deleteDoc(doc(db, "produtos", id));
                     if(document.getElementById('prod-id').value === id) window.resetForm();
                 } catch (error) {
-                    console.error("Erro ao deletar:", error);
-                    alert("Erro ao excluir produto. Verifique as permissões do Firebase.");
+                    alert("Erro ao excluir: " + error.message);
                 }
             }
         }
 
+        // Função para limpar o formulário
         window.resetForm = function() {
             document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-gold"></i> Novo Produto`;
             document.getElementById('prod-id').value = '';
@@ -374,4 +370,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
