@@ -74,7 +74,7 @@
                         <div class="flex flex-col">
                             <label class="text-sm font-bold text-gray-600 mb-1">Marca/Setor</label>
                             <select id="prod-brand" class="border border-gray-200 p-3 rounded focus:ring-1 focus:ring-gold focus:border-gold outline-none bg-white">
-                                <option value="boticário">Arábes</option>
+                                <option value="Arábes">Arábes</option>
                                 <option value="brand">Brand (Coleção)</option>
                             </select>
                         </div>
@@ -231,7 +231,7 @@
                     <tr class="border-b hover:bg-gray-50 transition">
                         <td class="p-4">${imgTag}</td>
                         <td class="p-4 font-semibold text-midnight">${p.name}</td>
-                        <td class="p-4 uppercase text-xs tracking-wider">${p.brand === 'boticario' ? 'Boticário' : 'Brand'}</td>
+                        <td class="p-4 uppercase text-xs tracking-wider">${p.brand === 'Arábes' ? 'Arábes' : 'Brand'}</td>
                         <td class="p-4 font-semibold text-gold">R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}</td>
                         <td class="p-4">${stockLabel}</td>
                         <td class="p-4">
