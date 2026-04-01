@@ -82,12 +82,12 @@
             <button onclick="window.clearSearch()" class="text-gold hover:underline">Limpar busca</button>
         </div>
 
-        <div id="section-boticario" class="mb-20 product-section">
+        <div id="section-Árabes" class="mb-20 product-section">
             <div class="text-center mb-10">
-                <h3 class="text-4xl font-serif text-midnight mb-2">O Boticário</h3>
+                <h3 class="text-4xl font-serif text-midnight mb-2">Árabes</h3>
                 <div class="w-16 h-px bg-gold mx-auto"></div>
             </div>
-            <div id="grid-boticario" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div id="grid-Árabes" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 </div>
         </div>
 
@@ -163,10 +163,10 @@
         });
 
         window.renderProducts = function(productsToRender = products) {
-            const gridBot = document.getElementById('grid-boticario');
+            const gridBot = document.getElementById('grid-Árabes');
             const gridBrand = document.getElementById('grid-brand');
             const noResults = document.getElementById('no-results');
-            const sectionBot = document.getElementById('section-boticario');
+            const sectionBot = document.getElementById('section-Árabes');
             const sectionBrand = document.getElementById('section-brand');
             
             gridBot.innerHTML = ''; gridBrand.innerHTML = '';
@@ -201,7 +201,7 @@
                     </div>
                 `;
                 
-                if(p.brand === 'boticario') {
+                if(p.brand === 'Árabes') {
                     gridBot.innerHTML += card;
                     countBot++;
                 } else {
@@ -352,7 +352,7 @@
             let total = 0;
             
             cart.forEach(item => {
-                text += `- ${item.qtd}x ${item.name} (${item.brand === 'boticario' ? 'Boticario' : 'Brand'}) | R$ ${(item.price * item.qtd).toFixed(2).replace('.', ',')}%0A`;
+                text += `- ${item.qtd}x ${item.name} (${item.brand === 'Árabes' ? 'Árabes' : 'Brand'}) | R$ ${(item.price * item.qtd).toFixed(2).replace('.', ',')}%0A`;
                 total += item.price * item.qtd;
             });
             
