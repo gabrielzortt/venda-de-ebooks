@@ -38,7 +38,7 @@
         }
     </style>
 </head>
-<body class="bg-[#FAFAFA] text-gray-800 font-sans antialiased selection:bg-gold selection:text-white">
+<body class="bg-[#FAFAFA] text-gray-800 font-sans antialiased selection:bg-gold selection:text-white relative">
 
     <header class="bg-white/90 backdrop-blur-sm text-midnight sticky top-0 z-50 border-b border-gray-100 shadow-sm">
         <div class="container mx-auto px-4 md:px-6 py-3 flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -105,6 +105,13 @@
             <p class="text-sm text-gray-400 font-light mt-2">&copy; 2024 Perfumes da Gi. Todos os direitos reservados.</p>
         </div>
     </footer>
+
+    <a href="https://wa.me/5592994246242?text=Ol%C3%A1%21%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20sobre%20os%20perfumes." target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-110 hover:shadow-green-500/30 transition-all duration-300 z-30 group">
+        <i class="fab fa-whatsapp text-3xl"></i>
+        <span class="absolute right-16 bg-white text-midnight text-xs font-semibold px-3 py-1.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap border border-gray-100">
+            Dúvidas? Chame aqui!
+        </span>
+    </a>
 
     <div id="cart-overlay" onclick="window.toggleCart()" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
     
@@ -198,7 +205,6 @@
                     </div>
                 `;
                 
-                // LÓGICA DE SEGURANÇA: Lê qualquer variação antiga ou nova e joga pra grade dos Árabes
                 const brandLower = (p.brand || '').toLowerCase();
                 const isArabes = (brandLower === 'arabes' || brandLower === 'arábes' || brandLower === 'boticario');
 
@@ -340,7 +346,6 @@
             document.getElementById('cart-count').innerText = count;
         }
 
-        // NOME DA LOJA ALTERADO NO WHATSAPP
         window.checkout = function() {
             if(cart.length === 0) return alert('Sua sacola está vazia!');
             
@@ -348,7 +353,6 @@
             let total = 0;
             
             cart.forEach(item => {
-                // Segurança para o nome da marca na mensagem
                 const brandLower = (item.brand || '').toLowerCase();
                 const brandName = (brandLower === 'arabes' || brandLower === 'arábes' || brandLower === 'boticario') ? 'Árabes' : 'Brand';
 
