@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elegance Perfumes | Alta Perfumaria Turbinada</title>
+    <title>Perfumes da Gi | Alta Perfumaria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -25,14 +25,11 @@
         }
     </script>
     <style>
-        /* Efeito de rolagem suave */
         html { scroll-behavior: smooth; }
-        /* Barra de rolagem elegante */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
         
-        /* Ajuste para imagens de produto ficarem contidas */
         .product-image {
             width: 100%;
             height: 100%;
@@ -46,7 +43,7 @@
     <header class="bg-white/90 backdrop-blur-sm text-midnight sticky top-0 z-50 border-b border-gray-100 shadow-sm">
         <div class="container mx-auto px-4 md:px-6 py-3 flex flex-col md:flex-row gap-4 justify-between items-center">
             <h1 class="text-3xl font-serif font-bold tracking-widest uppercase text-midnight">
-                Elegance
+                Perfumes da Gi
             </h1>
             
             <div class="relative w-full md:w-96">
@@ -77,18 +74,18 @@
         <div id="search-count" class="hidden text-center text-sm text-gray-500 mb-8 font-medium italic"></div>
 
         <div id="no-results" class="hidden text-center py-20 text-gray-500 flex flex-col items-center gap-4">
-            <i class="fas fa-search text-5xl opacity-30">Elegance</i>
+            <i class="fas fa-search text-5xl opacity-30"></i>
             <p class="text-xl font-light">Nenhum perfume corresponde à sua busca.</p>
             <button onclick="window.clearSearch()" class="text-gold hover:underline">Limpar busca</button>
         </div>
 
-        <div id="section-Árabes" class="mb-20 product-section">
+        <div id="section-arabes" class="mb-20 product-section">
             <div class="text-center mb-10">
                 <h3 class="text-4xl font-serif text-midnight mb-2">Árabes</h3>
                 <div class="w-16 h-px bg-gold mx-auto"></div>
             </div>
-            <div id="grid-Árabes" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                </div>
+            <div id="grid-arabes" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            </div>
         </div>
 
         <div id="section-brand" class="mb-10 product-section">
@@ -97,15 +94,15 @@
                 <div class="w-16 h-px bg-gold mx-auto"></div>
             </div>
             <div id="grid-brand" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                </div>
+            </div>
         </div>
     </main>
 
     <footer class="bg-midnight text-white py-12 border-t-4 border-gold">
         <div class="container mx-auto px-6 text-center">
-            <h2 class="text-2xl font-serif tracking-widest mb-4">ELEGANCE</h2>
+            <h2 class="text-2xl font-serif tracking-widest mb-4">PERFUMES DA GI</h2>
             <p class="text-sm text-gray-400 font-light">Atendimento exclusivo via WhatsApp.</p>
-            <p class="text-sm text-gray-400 font-light mt-2">&copy; 2024 Elegance Perfumes. Todos os direitos reservados.</p>
+            <p class="text-sm text-gray-400 font-light mt-2">&copy; 2024 Perfumes da Gi. Todos os direitos reservados.</p>
         </div>
     </footer>
 
@@ -163,15 +160,15 @@
         });
 
         window.renderProducts = function(productsToRender = products) {
-            const gridBot = document.getElementById('grid-Árabes');
+            const gridArabes = document.getElementById('grid-arabes');
             const gridBrand = document.getElementById('grid-brand');
             const noResults = document.getElementById('no-results');
-            const sectionBot = document.getElementById('section-Árabes');
+            const sectionArabes = document.getElementById('section-arabes');
             const sectionBrand = document.getElementById('section-brand');
             
-            gridBot.innerHTML = ''; gridBrand.innerHTML = '';
+            gridArabes.innerHTML = ''; gridBrand.innerHTML = '';
             
-            let countBot = 0;
+            let countArabes = 0;
             let countBrand = 0;
 
             productsToRender.forEach(p => {
@@ -201,27 +198,29 @@
                     </div>
                 `;
                 
-                if(p.brand === 'Árabes') {
-                    gridBot.innerHTML += card;
-                    countBot++;
+                // LÓGICA DE SEGURANÇA: Lê qualquer variação antiga ou nova e joga pra grade dos Árabes
+                const brandLower = (p.brand || '').toLowerCase();
+                const isArabes = (brandLower === 'arabes' || brandLower === 'arábes' || brandLower === 'boticario');
+
+                if(isArabes) {
+                    gridArabes.innerHTML += card;
+                    countArabes++;
                 } else {
                     gridBrand.innerHTML += card;
                     countBrand++;
                 }
             });
 
-            sectionBot.classList.toggle('hidden', countBot === 0);
+            sectionArabes.classList.toggle('hidden', countArabes === 0);
             sectionBrand.classList.toggle('hidden', countBrand === 0);
             noResults.classList.toggle('hidden', productsToRender.length > 0);
         }
 
-        // --- ATUALIZADO: FUNÇÃO DE BUSCA E CONTADOR ---
         window.searchProducts = function() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
             const heroSection = document.getElementById('hero-section');
             const searchCount = document.getElementById('search-count');
             
-            // Se o campo de busca ficar vazio, volta o site ao normal
             if (searchTerm === "") {
                 heroSection.classList.remove('hidden');
                 searchCount.classList.add('hidden');
@@ -229,17 +228,14 @@
                 return;
             }
 
-            // Se tem texto na busca, filtra os produtos
             const filteredProducts = products.filter(p => 
                 p.name.toLowerCase().includes(searchTerm) || 
                 p.brand.toLowerCase().includes(searchTerm)
             );
             
-            // Esconde o Banner Gigante e mostra a frase de contagem
             heroSection.classList.add('hidden');
             searchCount.classList.remove('hidden');
             
-            // Atualiza a frase com a quantidade exata
             if (filteredProducts.length === 0) {
                 searchCount.innerHTML = `Nenhum perfume encontrado para "<b>${searchTerm}</b>"`;
             } else if (filteredProducts.length === 1) {
@@ -344,15 +340,19 @@
             document.getElementById('cart-count').innerText = count;
         }
 
-        // --- ATUALIZADO: MENSAGEM DO WHATSAPP SEM EMOJIS ---
+        // NOME DA LOJA ALTERADO NO WHATSAPP
         window.checkout = function() {
             if(cart.length === 0) return alert('Sua sacola está vazia!');
             
-            let text = "Ola! Gostaria de fazer o seguinte pedido na Elegance Perfumes:%0A%0A";
+            let text = "Ola! Gostaria de fazer o seguinte pedido na Perfumes da Gi:%0A%0A";
             let total = 0;
             
             cart.forEach(item => {
-                text += `- ${item.qtd}x ${item.name} (${item.brand === 'Árabes' ? 'Árabes' : 'Brand'}) | R$ ${(item.price * item.qtd).toFixed(2).replace('.', ',')}%0A`;
+                // Segurança para o nome da marca na mensagem
+                const brandLower = (item.brand || '').toLowerCase();
+                const brandName = (brandLower === 'arabes' || brandLower === 'arábes' || brandLower === 'boticario') ? 'Árabes' : 'Brand';
+
+                text += `- ${item.qtd}x ${item.name} (${brandName}) | R$ ${(item.price * item.qtd).toFixed(2).replace('.', ',')}%0A`;
                 total += item.price * item.qtd;
             });
             
