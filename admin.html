@@ -127,7 +127,7 @@
                                 </tr>
                             </thead>
                             <tbody id="product-list" class="text-sm">
-                                </tbody>
+                            </tbody>
                         </table>
                         <div id="no-products-msg" class="hidden text-center py-16 text-gray-500 italic">
                             Nenhum produto cadastrado ou correspondente ao filtro.
@@ -221,8 +221,11 @@
                     ? `<span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full">${p.stock}</span>` 
                     : `<span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">Esgotado</span>`;
                 
-                const imgTag = p.image && p.image !== ""
-                    ? `<img src="${p.image}" alt="${p.name}" class="w-12 h-12 object-contain p-0.5 border rounded-sm">`
+                // Agora ele verifica tanto 'image' quanto 'img'
+                const finalImgSrc = p.image || p.img || "";
+                
+                const imgTag = finalImgSrc !== ""
+                    ? `<img src="${finalImgSrc}" alt="${p.name}" class="w-12 h-12 object-contain p-0.5 border rounded-sm">`
                     : `<div class="w-12 h-12 bg-gray-100 border rounded-sm flex items-center justify-center text-[7px] text-gray-400 font-serif uppercase p-0.5 text-center">sem<br>foto</div>`;
 
                 tbody.innerHTML += `
@@ -246,27 +249,41 @@
         window.saveProduct = async function(e) {
             e.preventDefault();
             
-            const btnSave = document.getElementById('btn-save');
-            btnSave.innerText = "Processando...";
-            btnSave.disabled = true;
+            alert("Aviso 1: Iniciando o salvamento!"); 
 
+            const btnSave = document.getElementById('btn-save');
             const idInput = document.getElementById('prod-id').value;
             const name = document.getElementById('prod-name').value;
             const brand = document.getElementById('prod-brand').value;
             const price = parseFloat(document.getElementById('prod-price').value);
             const stock = parseInt(document.getElementById('prod-stock').value);
 
+            if (!idInput && !selectedFile) {
+                alert("Por favor, escolha uma foto para o novo perfume!");
+                return;
+            }
+
+            btnSave.innerText = "Processando...";
+            btnSave.disabled = true;
+
             let finalImageUrl = currentImageUrl; 
 
             try {
                 if (selectedFile) {
-                    btnSave.innerText = "Enviando pro ImgBB...";
+                    alert("Aviso 2: Foto detectada! Enviando para o ImgBB..."); 
                     
-                    const formData = new FormData();
-                    formData.append("image", selectedFile); // Voltamos a mandar o arquivo original (mais leve que base64)
+                    const reader = new FileReader();
+                    const base64Promise = new Promise((resolve) => {
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.readAsDataURL(selectedFile);
+                    });
+                    const base64Image = await base64Promise;
 
-                    // MÁGICA AQUI: A chave agora vai pendurada no link!
-                    const apiKey = "9b6f4ad8dcfca1f2933eaf00add23daf";
+                    const formData = new FormData();
+                    formData.append("image", base64Image);
+
+                    // 👇 COLOQUE A SUA CHAVE NOVA NA LINHA DE BAIXO 👇
+                    const apiKey = "COLE_AQUI_SUA_CHAVE_NOVA_DO_IMGBB"; 
                     const urlDoImgbb = `https://api.imgbb.com/1/upload?key=${apiKey}`;
 
                     const response = await fetch(urlDoImgbb, {
@@ -276,25 +293,22 @@
                     
                     const data = await response.json();
                     
-                    // Rastreador fofoqueiro caso dê erro:
-                    if (!response.ok) {
-                        console.error("ERRO DETALHADO DO IMGBB:", data);
-                        throw new Error(data.error?.message || "Erro desconhecido ao falar com o ImgBB.");
-                    }
-
                     if (data.success) {
-                        finalImageUrl = data.data.url; 
+                        finalImageUrl = data.data.url;
+                        alert("Aviso 3: Sucesso no ImgBB! O link da foto é: " + finalImageUrl); 
+                    } else {
+                        throw new Error(data.error?.message || "O ImgBB recusou a imagem.");
                     }
                 }
 
-                btnSave.innerText = "Salvando no Firebase...";
-
+                // Salvando com os DOIS nomes para garantir
                 const productData = {
                     name: name,
                     brand: brand,
                     price: price,
                     stock: stock,
-                    image: finalImageUrl
+                    image: finalImageUrl, 
+                    img: finalImageUrl    
                 };
 
                 if (idInput) {
@@ -305,11 +319,10 @@
                 }
 
                 window.resetForm();
-                alert('Produto salvo com sucesso!');
+                alert('Aviso 4: Produto e Imagem salvos com sucesso no Banco de Dados!');
                 
             } catch (error) {
-                console.error("Erro ao salvar produto:", error);
-                alert("Erro: " + error.message);
+                alert("ERRO AO SALVAR: " + error.message);
             } finally {
                 btnSave.innerText = "Salvar Produto";
                 btnSave.disabled = false;
@@ -329,7 +342,7 @@
             document.getElementById('prod-stock').value = product.stock;
             
             selectedFile = null; 
-            currentImageUrl = product.image || ""; 
+            currentImageUrl = product.image || product.img || ""; 
 
             if (currentImageUrl !== "") {
                 document.getElementById('img-preview').src = currentImageUrl;
