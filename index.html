@@ -40,7 +40,7 @@
 </head>
 <body class="bg-[#FAFAFA] text-gray-800 font-sans antialiased selection:bg-gold selection:text-white relative">
 
-    <header class="bg-white/90 backdrop-blur-sm text-midnight sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+    <header class="bg-white/90 backdrop-blur-sm text-midnight sticky top-0 z-40 border-b border-gray-100 shadow-sm">
         <div class="container mx-auto px-4 md:px-6 py-3 flex flex-col md:flex-row gap-4 justify-between items-center">
             <h1 class="text-3xl font-serif font-bold tracking-widest uppercase text-midnight">
                 Perfumes da Gi
@@ -113,7 +113,7 @@
         </span>
     </a>
 
-    <div id="cart-overlay" onclick="window.toggleCart()" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="cart-overlay" onclick="window.toggleCart()" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
     
     <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-500 z-50 flex flex-col">
         <div class="px-6 py-5 bg-white border-b flex justify-between items-center">
@@ -121,8 +121,7 @@
             <button onclick="window.toggleCart()" class="text-gray-400 hover:text-gold transition-colors duration-300 text-xl"><i class="fas fa-times"></i></button>
         </div>
         
-        <div id="cart-items" class="p-6 flex-1 overflow-y-auto flex flex-col gap-6">
-            </div>
+        <div id="cart-items" class="p-6 flex-1 overflow-y-auto flex flex-col gap-6"></div>
         
         <div class="p-6 bg-gray-50 border-t border-gray-100">
             <div class="flex justify-between font-serif text-xl text-midnight mb-6">
@@ -132,6 +131,34 @@
             <button onclick="window.checkout()" class="w-full bg-midnight text-white uppercase tracking-widest text-sm py-4 rounded-sm hover:bg-gold transition-colors duration-500 shadow-lg">
                 Finalizar no WhatsApp
             </button>
+        </div>
+    </div>
+
+    <div id="product-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="if(event.target === this) window.closeProductModal()">
+        <div id="product-modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-4xl relative overflow-hidden flex flex-col md:flex-row transform scale-95 transition-transform duration-300 max-h-[90vh]">
+            
+            <button onclick="window.closeProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-midnight z-10 transition-colors text-2xl bg-white/80 rounded-full w-8 h-8 flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="w-full md:w-1/2 bg-gray-50 flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-100 relative min-h-[300px]">
+                <img id="modal-img" src="" alt="Produto" class="max-h-[400px] w-full object-contain drop-shadow-xl">
+                <div id="modal-esgotado" class="hidden absolute top-4 left-4 bg-midnight text-white text-xs uppercase tracking-wider px-3 py-1 rounded-full shadow-md z-10">Esgotado</div>
+            </div>
+
+            <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-white overflow-y-auto">
+                <span id="modal-brand" class="text-gold uppercase tracking-widest text-xs font-semibold mb-2"></span>
+                <h2 id="modal-name" class="text-3xl md:text-4xl font-serif text-midnight mb-4 leading-tight"></h2>
+                <div class="w-12 h-px bg-gold mb-4"></div>
+                <p id="modal-price" class="text-3xl text-gray-800 font-light mb-6"></p>
+                
+                <p class="text-sm text-gray-500 mb-8 leading-relaxed italic">
+                    "Uma fragrância exclusiva selecionada a dedo. A assinatura perfeita para marcar a sua presença onde quer que você vá."
+                </p>
+
+                <div id="modal-action-btn" class="mt-auto">
+                    </div>
+            </div>
         </div>
     </div>
 
@@ -159,9 +186,7 @@
             snapshot.forEach((doc) => {
                 products.push({ id: doc.id, ...doc.data() }); 
             });
-            
             window.renderProducts(products);
-            
             cart = cart.filter(cartItem => products.some(p => p.id === cartItem.id));
             window.updateCart(); 
         });
@@ -187,19 +212,20 @@
 
                 const card = `
                     <div class="group bg-white rounded-xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 overflow-hidden relative flex flex-col">
-                        <div class="h-64 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden relative border-b border-gray-100">
+                        <div onclick="window.openProductModal('${p.id}')" class="h-64 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden relative border-b border-gray-100 cursor-pointer">
                             ${imageHtml}
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 z-0"></div>
                             ${isEsgotado ? '<div class="absolute top-3 right-3 bg-midnight text-white text-[10px] uppercase tracking-wider px-3 py-1 rounded-full shadow-md z-10">Esgotado</div>' : ''}
                         </div>
                         
                         <div class="p-5 flex flex-col flex-1 bg-white relative z-10">
-                            <h4 class="text-base font-serif text-midnight mb-1 group-hover:text-gold transition-colors line-clamp-2 h-12">${p.name}</h4>
+                            <h4 onclick="window.openProductModal('${p.id}')" class="text-base font-serif text-midnight mb-1 hover:text-gold transition-colors line-clamp-2 h-12 cursor-pointer">${p.name}</h4>
                             <p class="text-xl text-gray-800 font-light mb-5">R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}</p>
                             
                             <div class="mt-auto">
                                 ${isEsgotado 
                                     ? '<button disabled class="w-full border border-gray-200 text-gray-400 py-2.5 uppercase tracking-widest text-xs cursor-not-allowed rounded-sm">Indisponível</button>' 
-                                    : `<button onclick="window.addToCart('${p.id}')" class="w-full bg-white border border-midnight text-midnight py-2.5 uppercase tracking-widest text-xs hover:bg-midnight hover:text-white transition-all duration-300 rounded-sm">Adicionar à Sacola</button>`}
+                                    : `<button onclick="window.addToCart('${p.id}', this)" class="w-full bg-white border border-midnight text-midnight py-2.5 uppercase tracking-widest text-xs hover:bg-midnight hover:text-white transition-all duration-300 rounded-sm">Adicionar à Sacola</button>`}
                             </div>
                         </div>
                     </div>
@@ -220,6 +246,59 @@
             sectionArabes.classList.toggle('hidden', countArabes === 0);
             sectionBrand.classList.toggle('hidden', countBrand === 0);
             noResults.classList.toggle('hidden', productsToRender.length > 0);
+        }
+
+        window.openProductModal = function(id) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+
+            const modal = document.getElementById('product-modal');
+            const modalContent = document.getElementById('product-modal-content');
+            
+            const brandLower = (p.brand || '').toLowerCase();
+            const brandName = (brandLower === 'arabes' || brandLower === 'arábes' || brandLower === 'boticario') ? 'Árabes' : 'Brand';
+            
+            document.getElementById('modal-name').innerText = p.name;
+            document.getElementById('modal-brand').innerText = `Linha ${brandName}`;
+            document.getElementById('modal-price').innerText = `R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}`;
+            
+            const imgEl = document.getElementById('modal-img');
+            if (p.image && p.image !== "") {
+                imgEl.src = p.image;
+                imgEl.classList.remove('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+            }
+
+            const isEsgotado = p.stock <= 0;
+            document.getElementById('modal-esgotado').classList.toggle('hidden', !isEsgotado);
+
+            const btnContainer = document.getElementById('modal-action-btn');
+            if (isEsgotado) {
+                btnContainer.innerHTML = '<button disabled class="w-full bg-gray-100 text-gray-400 py-4 uppercase tracking-widest text-sm cursor-not-allowed rounded-sm">Produto Esgotado</button>';
+            } else {
+                btnContainer.innerHTML = `<button onclick="window.addToCart('${p.id}', this); setTimeout(window.closeProductModal, 1000);" class="w-full bg-midnight text-white py-4 uppercase tracking-widest text-sm hover:bg-gold transition-colors duration-500 rounded-sm shadow-lg">Adicionar à Sacola</button>`;
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        window.closeProductModal = function() {
+            const modal = document.getElementById('product-modal');
+            const modalContent = document.getElementById('product-modal-content');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
 
         window.searchProducts = function() {
@@ -273,31 +352,36 @@
             }
         }
 
-        window.addToCart = function(id) {
+        window.addToCart = function(id, btnElement) {
             const product = products.find(p => p.id === id);
             if(product && product.stock > 0) {
                 const item = cart.find(i => i.id === id);
                 if(item) {
                     if(item.qtd < product.stock) item.qtd++;
-                    else alert('Estoque máximo atingido para este item.');
+                                        else {
+                        alert('Estoque máximo atingido para este item.');
+                        return;
+                    }
                 } else {
                     cart.push({...product, qtd: 1});
-                    
-                    const btn = event.currentTarget;
-                    if(btn) {
-                        const originalText = btn.innerText;
-                        btn.innerText = "Adicionado ✓";
-                        btn.classList.replace('bg-white', 'bg-gold');
-                        btn.classList.replace('text-midnight', 'text-white');
-                        btn.classList.replace('border-midnight', 'border-gold');
-                        setTimeout(() => {
-                            btn.innerText = originalText;
-                            btn.classList.replace('bg-gold', 'bg-white');
-                            btn.classList.replace('text-white', 'text-midnight');
-                            btn.classList.replace('border-gold', 'border-midnight');
-                        }, 1500);
-                    }
                 }
+                
+                if(btnElement) {
+                    const originalText = btnElement.innerText;
+                    btnElement.innerText = "Adicionado ✓";
+                    btnElement.classList.add('bg-gold', 'text-white', 'border-gold');
+                    btnElement.classList.remove('bg-white', 'text-midnight', 'border-midnight');
+                    setTimeout(() => {
+                        btnElement.innerText = originalText;
+                        btnElement.classList.remove('bg-gold', 'text-white', 'border-gold');
+                        btnElement.classList.add('bg-midnight', 'text-white');
+                        if(btnElement.classList.contains('py-2.5')) {
+                             btnElement.classList.add('bg-white', 'text-midnight', 'border-midnight');
+                             btnElement.classList.remove('bg-midnight', 'text-white');
+                        }
+                    }, 1500);
+                }
+                
                 window.updateCart();
             }
         }
