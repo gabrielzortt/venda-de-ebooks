@@ -6,8 +6,7 @@
     <title>Perfumes da Gi | Alta Perfumaria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/channel" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -43,7 +42,8 @@
 
     <header class="bg-white/90 backdrop-blur-sm text-midnight sticky top-0 z-40 border-b border-gray-100 shadow-sm">
         <div class="container mx-auto px-4 md:px-6 py-3 flex flex-col md:flex-row gap-4 justify-between items-center">
-            <h1 class="text-4xl text-midnight font-bold" style="font-family: 'Channel', cursive; padding-top: 5px;">
+            
+            <h1 class="text-3xl font-bold tracking-widest uppercase text-midnight" style="font-family: 'Cinzel', serif;">
                 Perfumes da Gi
             </h1>
             
@@ -357,4 +357,71 @@
             const product = products.find(p => p.id === id);
             if(product && product.stock > 0) {
                 const item = cart.find(i => i.id === id);
-             
+                if(item) {
+                           else {
+                        alert('Estoque máximo atingido para este item.');
+                        return;
+                    }
+                } else {
+                    cart.push({...product, qtd: 1});
+                }
+                
+                if(btnElement) {
+                    const originalText = btnElement.innerText;
+                    btnElement.innerText = "Adicionado ✓";
+                    btnElement.classList.add('bg-gold', 'text-white', 'border-gold');
+                    btnElement.classList.remove('bg-white', 'text-midnight', 'border-midnight');
+                    setTimeout(() => {
+                        btnElement.innerText = originalText;
+                        btnElement.classList.remove('bg-gold', 'text-white', 'border-gold');
+                        btnElement.classList.add('bg-midnight', 'text-white');
+                        if(btnElement.classList.contains('py-2.5')) {
+                             btnElement.classList.add('bg-white', 'text-midnight', 'border-midnight');
+                             btnElement.classList.remove('bg-midnight', 'text-white');
+                        }
+                    }, 1500);
+                }
+                
+                window.updateCart();
+            }
+        }
+
+        window.removeFromCart = function(index) {
+            cart.splice(index, 1);
+            window.updateCart();
+        }
+
+        window.updateCart = function() {
+            const container = document.getElementById('cart-items');
+            let total = 0;
+            let count = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 mt-20">
+                        <i class="fas fa-shopping-bag text-5xl opacity-30 mb-4"></i>
+                        <p class="font-light text-lg">Sua sacola está vazia.</p>
+                    </div>`;
+            } else {
+                container.innerHTML = '';
+                cart.forEach((item, index) => {
+                    total += item.price * item.qtd;
+                    count += item.qtd;
+                    
+                    const imgInCart = item.image && item.image !== "" 
+                        ? `<img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-contain p-1 border rounded-sm">`
+                        : `<div class="w-16 h-16 bg-gray-100 rounded-sm flex items-center justify-center text-[8px] text-gray-400 font-serif uppercase text-center p-1 border">sem<br>imagem</div>`;
+
+                    container.innerHTML += `
+                        <div class="flex gap-4 items-center border-b border-gray-100 pb-4">
+                            ${imgInCart}
+                            <div class="flex-1">
+                                <p class="font-serif text-sm text-midnight">${item.name}</p>
+                                <p class="text-xs text-gray-500 mt-1">Qtd: ${item.qtd}</p>
+                                <p class="text-sm font-semibold text-gold mt-1">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                            </div>
+                            <button onclick="window.removeFromCart(${index})" class="text-gray-300 hover:text-red-500 transition-colors p-2"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                });
+        
