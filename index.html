@@ -42,7 +42,6 @@
 
     <header class="bg-white/90 backdrop-blur-sm text-midnight sticky top-0 z-40 border-b border-gray-100 shadow-sm">
         <div class="container mx-auto px-4 md:px-6 py-3 flex flex-col md:flex-row gap-4 justify-between items-center">
-            
             <h1 class="text-3xl font-bold tracking-widest uppercase text-midnight" style="font-family: 'Cinzel', serif;">
                 Perfumes da Gi
             </h1>
@@ -357,8 +356,8 @@
             const product = products.find(p => p.id === id);
             if(product && product.stock > 0) {
                 const item = cart.find(i => i.id === id);
-                if(item) {
-                           else {
+                if(item) {                     if(item.qtd < product.stock) item.qtd++;
+                    else {
                         alert('Estoque máximo atingido para este item.');
                         return;
                     }
@@ -424,4 +423,33 @@
                         </div>
                     `;
                 });
-        
+            }
+
+            document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        window.checkout = function() {
+            if(cart.length === 0) return alert('Sua sacola está vazia!');
+            
+            let text = "Ola! Gostaria de fazer o seguinte pedido na Perfumes da Gi:%0A%0A";
+            let total = 0;
+            
+            cart.forEach(item => {
+                const brandLower = (item.brand || '').toLowerCase();
+                const brandName = (brandLower === 'arabes' || brandLower === 'arábes' || brandLower === 'boticario') ? 'Árabes' : 'Brand';
+
+                text += `- ${item.qtd}x ${item.name} (${brandName}) | R$ ${(item.price * item.qtd).toFixed(2).replace('.', ',')}%0A`;
+                total += item.price * item.qtd;
+            });
+            
+            text += `%0A*Total do Pedido: R$ ${total.toFixed(2).replace('.', ',')}*%0A%0AAguardo o retorno para confirmar e combinar a entrega/pagamento.`;
+            
+            const numero = "5592994246242"; 
+            window.open(`https://wa.me/${numero}?text=${text}`, '_blank');
+        }
+    </script>
+</body>
+</html>
+
+                    
