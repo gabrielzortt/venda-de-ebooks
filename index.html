@@ -6,7 +6,7 @@
     <title>Perfumes da Gi | Alta Perfumaria</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -15,6 +15,7 @@
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
                         sans: ['"Montserrat"', 'sans-serif'],
+                        vibes: ['"Great Vibes"', 'cursive'] // Fonte nova configurada aqui
                     },
                     colors: { 
                         gold: { DEFAULT: '#D4AF37', light: '#F9F1D8' },
@@ -42,7 +43,8 @@
 
     <header class="bg-white/90 backdrop-blur-sm text-midnight sticky top-0 z-40 border-b border-gray-100 shadow-sm">
         <div class="container mx-auto px-4 md:px-6 py-3 flex flex-col md:flex-row gap-4 justify-between items-center">
-            <h1 class="text-3xl font-bold tracking-widest uppercase text-midnight" style="font-family: 'Cinzel', serif;">
+            
+            <h1 class="text-4xl md:text-5xl text-midnight font-vibes drop-shadow-sm py-1">
                 Perfumes da Gi
             </h1>
             
@@ -64,8 +66,8 @@
         <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
         <div class="relative z-10 text-center px-4 max-w-3xl">
             <span class="text-gold uppercase tracking-[0.3em] text-sm font-semibold mb-3 block">A Arte da Perfumaria</span>
-            <h2 class="text-4xl md:text-6xl font-serif mb-5 leading-tight">Desperte sua <br/><span class="italic text-gold">essência única</span></h2>
-            <a href="#catalogo" class="inline-block border border-gold text-gold hover:bg-gold hover:text-midnight px-8 py-3 uppercase tracking-widest text-xs transition-all duration-500 rounded-sm">Explorar Coleção</a>
+            <h2 class="text-4xl md:text-6xl font-serif mb-5 leading-tight">Desperte sua <br/><span class="font-vibes text-gold text-5xl md:text-7xl font-normal leading-none mt-2 block">essência única</span></h2>
+            <a href="#catalogo" class="inline-block border border-gold text-gold hover:bg-gold hover:text-midnight px-8 py-3 uppercase tracking-widest text-xs transition-all duration-500 rounded-sm mt-4">Explorar Coleção</a>
         </div>
     </section>
 
@@ -100,7 +102,7 @@
 
     <footer class="bg-midnight text-white py-12 border-t-4 border-gold">
         <div class="container mx-auto px-6 text-center">
-            <h2 class="text-2xl font-serif tracking-widest mb-4">PERFUMES DA GI</h2>
+            <h2 class="text-4xl font-vibes mb-4 drop-shadow-sm text-gold">Perfumes da Gi</h2>
             <p class="text-sm text-gray-400 font-light">Atendimento exclusivo via WhatsApp.</p>
             <p class="text-sm text-gray-400 font-light mt-2">&copy; 2024 Perfumes da Gi. Todos os direitos reservados.</p>
         </div>
@@ -356,7 +358,8 @@
             const product = products.find(p => p.id === id);
             if(product && product.stock > 0) {
                 const item = cart.find(i => i.id === id);
-                if(item) {                     if(item.qtd < product.stock) item.qtd++;
+                if(item) {
+                    if(item.qtd < product.stock) item.qtd++;
                     else {
                         alert('Estoque máximo atingido para este item.');
                         return;
@@ -451,5 +454,3 @@
     </script>
 </body>
 </html>
-
-                    
